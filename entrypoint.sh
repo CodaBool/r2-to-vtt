@@ -1,25 +1,22 @@
 #!/bin/sh
 set -e
 
-# Default: run once a day at 3:00 AM
+# Default: run once a day at 3:00 AM (can override with CRON_SCHEDULE env)
 CRON_SCHEDULE="${CRON_SCHEDULE:-0 3 * * *}"
 
 echo "[entrypoint] Using CRON_SCHEDULE='${CRON_SCHEDULE}'"
 
-# Write crontab for root
-# busybox crond on Alpine reads /etc/crontabs/root by default
 mkdir -p /etc/crontabs
+mkdir -p /var/log
 
-# One job: run your script with all env vars that existed when crond started
-# and log to /var/log/cron.log
-echo "${CRON_SCHEDULE} node /app/main.js >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
+# Ensure appuser exists and owns working dirs
+chown -R appuser:appuser /app /sync /var/log || true
 
-# Optional: show resulting crontab
+# Cron will run as root, but the actual job runs as appuser (UID 999)
+echo "${CRON_SCHEDULE} su -s /bin/sh -c 'node /app/main.js' appuser >> /var/log/cron.log 2>&1" > /etc/crontabs/root
+
 echo "[entrypoint] Installed crontab:"
 cat /etc/crontabs/root
-
-# Make sure log dir exists
-mkdir -p /var/log
 
 # Start cron in foreground
 exec crond -f -l 4
