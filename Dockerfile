@@ -5,16 +5,13 @@ WORKDIR /app
 RUN apk add --no-cache busybox-suid
 
 ENV R2_BUCKET=obsidian
-ENV WATCH_PREFIX=vtt
-ENV LOCAL_ROOT=/sync
-ENV R2_OBJECT_KEYS=main.md,other.md
-ENV CHECK_WINDOW_SECONDS=86400
-ENV CHECK_INTERVAL_SECONDS=86400
+ENV R2_MAP="vtt/main.md=JournalEntry.bU74NB9zY54ctC3T.JournalEntryPage.4XNteNhTRkwHWTrF"
+ENV CRON_SCHEDULE="* * * * *"
 
-COPY main.js package.json crontab .
+COPY main.js package.json entrypoint.sh ./
 RUN npm install
 
-RUN crontab /app/crontab
+RUN chmod +x /app/entrypoint.sh
 RUN mkdir -p /var/log
 
-CMD ["crond", "-f", "-l", "4"]
+CMD ["/app/entrypoint.sh"]

@@ -1,8 +1,14 @@
+
+# used for local testing
+
 build:
 	docker build -t r2 .
 
 run:
 	docker run --env-file .env -d --name r2 r2
+
+test:
+  docker run --env-file .env -d -v "$(pwd)/junk/Data/worlds/test/data/journal:/app/journal" --name r2 r2
 
 stop:
 	docker rm -f r2

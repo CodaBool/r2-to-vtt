@@ -1,6 +1,7 @@
 # Purpose
-Checks if a R2 object on the watchlist has updated within the given timer.
-If it has it will download and replace the local file.
+Downloads provided markdown files from R2 on the given cron.
+Opens the LevelDB FoundryVTT Journal entry specified in R2_MAP.
+Replaces the contents with the markdown contents after converting to html.
 
 I use this in my FoundryVTT to automatically update notes from Obsidian to the VTT.
 
@@ -8,11 +9,9 @@ I use this in my FoundryVTT to automatically update notes from Obsidian to the V
 > their default value is given
 
 - R2_BUCKET=obsidian
-- WATCH_PREFIX=vtt
-- LOCAL_ROOT=/sync
-- R2_OBJECT_KEYS=main.md,other.md
-- CHECK_WINDOW_SECONDS=86400
-- CHECK_INTERVAL_SECONDS=86400
+- R2_MAP="vtt/main.md=JournalEntry.bU74NB9zY54ctC3T.JournalEntryPage.4XNteNhTRkwHWTrF"
+ENV CRON_SCHEDULE="* * * * *"
+- CRON_SCHEDULE=/sync
 
 # env var
 > expects a .env with these values
