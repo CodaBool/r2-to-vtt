@@ -1,0 +1,20 @@
+# on:
+#   schedule:
+#     - cron: "0 0 * * 0" # Runs weekly at midnight UTC
+#   push:
+#     branches:
+#       - master
+# jobs:
+#   upload:
+#     runs-on: ubuntu-latest
+#     steps:
+#       # https://github.com/marketplace/actions/checkout
+#       - uses: actions/checkout@v4
+#       # https://github.com/marketplace/actions/docker-setup-docker
+#       - uses: docker/setup-docker-action@v4
+#       # login to github, build and push image
+#       - name: Build and push image
+#         run: |
+#           docker build -t ghcr.io/codabool/backup-to-s3:latest .
+#           echo ${{ secrets.GH_TOKEN }} | docker login ghcr.io -u codabool --password-stdin
+#           docker push ghcr.io/codabool/backup-to-s3:latest
