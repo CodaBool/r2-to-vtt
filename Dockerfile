@@ -1,8 +1,20 @@
 FROM node:24-alpine
 WORKDIR /app
-#RUN apk -Uuv add tar less aws-cli curl busybox-suid && \
-#  rm -rf /var/cache/apk/*
-RUN npm install @aws-sdk/client-s3
-COPY main.js .
-CMD [ "crond", "-f"]
-# CMD ["sh", "-c", "while true; do node main.js && sleep 86400; done"]
+
+# crontab
+RUN apk add --no-cache busybox-suid
+
+ENV R2_BUCKET=obsidian
+ENV WATCH_PREFIX=vtt
+ENV LOCAL_ROOT=/sync
+ENV R2_OBJECT_KEYS=main.md,other.md
+ENV CHECK_WINDOW_SECONDS=86400
+ENV CHECK_INTERVAL_SECONDS=86400
+
+COPY main.js package.json crontab .
+RUN npm install
+
+RUN crontab /app/crontab
+RUN mkdir -p /var/log
+
+CMD ["crond", "-f", "-l", "4"]
