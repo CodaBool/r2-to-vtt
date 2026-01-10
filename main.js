@@ -24,6 +24,38 @@ function parseKeyToUuidMap(str) {
   return out
 }
 
+async function normalizeJournalOwnership(dir) {
+  const currentPath = path.join(dir, "CURRENT")
+
+  let stat
+  try {
+    stat = await fs.promises.stat(currentPath)
+  } catch (e) {
+    console.warn(
+      `[sync] ownership normalize: no CURRENT file in "${dir}", skipping`,
+    )
+    return
+  }
+
+  const uid = stat.uid
+  const gid = stat.gid
+
+  console.log(
+    `[sync] normalizing ownership in "${dir}" to uid=${uid} gid=${gid}`,
+  )
+
+  const entries = await fs.promises.readdir(dir)
+
+  for (const name of entries) {
+    const p = path.join(dir, name)
+    try {
+      await fs.promises.chown(p, uid, gid)
+    } catch (e) {
+      console.warn(`[sync] chown failed for ${p}: ${e.message}`)
+    }
+  }
+}
+
 const KEY_TO_UUID = parseKeyToUuidMap(process.env.R2_MAP)
 if (!Object.keys(KEY_TO_UUID).length) {
   console.error(
@@ -187,6 +219,9 @@ async function main() {
         console.error(`[sync] error processing key="${key}"`, err)
       }
     }
+
+    // 🔧 NEW: normalize ownership so new files match existing ones
+    await normalizeJournalOwnership(resolvedJournalPath)
 
     console.log("[sync] done")
   } finally {
