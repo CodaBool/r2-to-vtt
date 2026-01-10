@@ -10,7 +10,7 @@ I use this in my FoundryVTT to automatically update notes from Obsidian to the V
 
 - R2_BUCKET=obsidian
 - R2_MAP="vtt/main.md=JournalEntry.bU74NB9zY54ctC3T.JournalEntryPage.4XNteNhTRkwHWTrF"
-ENV CRON_SCHEDULE="* * * * *"
+ENV CRON_SCHEDULE="0 3 * * *"
 - CRON_SCHEDULE=/sync
 
 # env var
@@ -20,4 +20,9 @@ ENV CRON_SCHEDULE="* * * * *"
 CF_ACCOUNT_ID=
 CF_ACCESS_ID=
 CF_ACCESS_SECRET=
+```
+
+# usage
+```
+docker run --env-file .env -d -v "/foundryFolder/Data/worlds/test/data/journal:/app/journal" --name r2-to-vtt r2-to-vtt
 ```
