@@ -13,7 +13,7 @@ mkdir -p /var/log
 chown -R appuser:appuser /app /sync /var/log || true
 
 # Cron will run as root, but the actual job runs as appuser (UID 999)
-echo "${CRON_SCHEDULE} su -s /bin/sh -c 'node /app/main.js' appuser >> /var/log/cron.log 2>&1" > /etc/crontabs/root
+echo "${CRON_SCHEDULE} su -s /bin/sh -c 'node /app/main.js' appuser >> /proc/1/fd/1 2>&1" > /etc/crontabs/root
 
 echo "[entrypoint] Installed crontab:"
 cat /etc/crontabs/root
