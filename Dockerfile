@@ -2,11 +2,7 @@ FROM node:24-alpine
 WORKDIR /app
 
 # crond + su
-RUN apk add --no-cache busybox-suid shadow
-
-# Create user with UID 999 (to match Foundry's container user mapping)
-# RUN useradd -u 999 -M -s /bin/sh appuser || adduser -D -u 999 appuser
-RUN adduser -D -u 999 -s /bin/sh appuser
+RUN apk add --no-cache busybox-suid
 
 
 ENV R2_BUCKET=obsidian
@@ -17,8 +13,7 @@ COPY main.js package.json entrypoint.sh ./
 RUN npm install
 
 # Prepare writable dirs for appuser
-RUN mkdir -p /sync /var/log && chown -R appuser:appuser /app /sync /var/log
-# RUN mkdir -p /sync /var/log && chown -R 999:999 /app /sync /var/log
+RUN mkdir -p /sync /var/log && chown -R node:node /app /sync /var/log
 
 RUN chmod +x /app/entrypoint.sh
 
