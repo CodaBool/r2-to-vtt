@@ -3,7 +3,7 @@ Downloads provided markdown files from R2 on the given cron.
 Opens the LevelDB FoundryVTT Journal entry specified in R2_MAP.
 Replaces the contents with the markdown contents after converting to html.
 
-I use this in my FoundryVTT to automatically update notes from Obsidian to the VTT.
+> I use this in my FoundryVTT to automatically update notes from Obsidian to the VTT
 
 # variables
 > their default value is given
