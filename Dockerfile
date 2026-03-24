@@ -3,7 +3,7 @@ FROM node:24-alpine
 WORKDIR /app
 
 # Install cron
-RUN apk add --no-cache dcron
+RUN apk add --no-cache dcron su-exec
 
 # Copy dependency files first for better layer caching
 COPY package* .
