@@ -1,22 +1,30 @@
 #!/bin/sh
-set -e
+set -eu
 
 CRON_SCHEDULE="${CRON_SCHEDULE:-0 3 * * *}"
+R2_BUCKET="${R2_BUCKET:-obsidian}"
+R2_MAP="${R2_MAP}"
 
-echo "[entrypoint] Using CRON_SCHEDULE='${CRON_SCHEDULE}'"
+echo "[entrypoint] Starting container"
+echo "[entrypoint] CRON_SCHEDULE=${CRON_SCHEDULE}"
+echo "[entrypoint] R2_BUCKET=${R2_BUCKET}"
+echo "[entrypoint] R2_MAP=${R2_MAP}"
 
-mkdir -p /etc/crontabs
-
+# Write cron job
 cat > /etc/crontabs/root <<EOF
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-${CRON_SCHEDULE} echo "[cron] hit \$(date -Iseconds)" >> /proc/1/fd/1 2>&1; su node -s /bin/sh -c '/usr/local/bin/node /app/main.js' >> /proc/1/fd/1 2>&1
+R2_BUCKET=${R2_BUCKET}
+R2_MAP=${R2_MAP}
+${CRON_SCHEDULE} /usr/local/bin/node /app/main.js >> /proc/1/fd/1 2>> /proc/1/fd/2
 EOF
 
-chmod 600 /etc/crontabs/root
-
 echo "[entrypoint] Installed crontab:"
-ls -l /etc/crontabs/root
 cat /etc/crontabs/root
 
-exec crond -f -d 0 -c /etc/crontabs
+# Optional: run once at startup
+#echo "[entrypoint] Running initial execution"
+#node /app/main.js
+
+echo "[entrypoint] Starting cron daemon"
+exec crond -f -l 2
