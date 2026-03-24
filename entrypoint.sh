@@ -11,11 +11,13 @@ echo "[entrypoint] R2_BUCKET=${R2_BUCKET}"
 echo "[entrypoint] R2_MAP=${R2_MAP}"
 echo "[entrypoint] uid=$(id -u) gid=$(id -g)"
 
-cat > /app/crontab <<EOF
+CRON_FILE="/tmp/crontab"
+
+cat > "${CRON_FILE}" <<EOF
 ${CRON_SCHEDULE} /usr/local/bin/node /app/main.js
 EOF
 
 echo "[entrypoint] Installed crontab:"
-cat /app/crontab
+cat "${CRON_FILE}"
 
-exec /usr/local/bin/supercronic /app/crontab
+exec /usr/local/bin/supercronic "${CRON_FILE}"
