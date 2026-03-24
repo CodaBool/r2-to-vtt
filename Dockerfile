@@ -1,20 +1,23 @@
 FROM node:24-alpine
+
 WORKDIR /app
 
-# crond + su
-RUN apk add --no-cache busybox-suid
+# Install cron
+RUN apk add --no-cache dcron
 
+# Copy dependency files first for better layer caching
+COPY package* .
 
+# Install dependencies
+RUN npm install
+
+# Copy app source
+COPY main.js entrypoint.sh ./
+RUN chmod +x /app/entrypoint.sh
+
+# Defaults, can be overridden at runtime
 ENV R2_BUCKET=obsidian
 ENV R2_MAP="vtt/main.md=JournalEntry.bU74NB9zY54ctC3T.JournalEntryPage.4XNteNhTRkwHWTrF"
 ENV CRON_SCHEDULE="0 3 * * *"
-
-COPY main.js package.json entrypoint.sh ./
-RUN npm install
-
-# Prepare writable dirs for appuser
-RUN mkdir -p /sync /var/log && chown -R node:node /app /sync /var/log
-
-RUN chmod +x /app/entrypoint.sh
 
 CMD ["/app/entrypoint.sh"]
