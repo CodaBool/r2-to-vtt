@@ -12,7 +12,8 @@ mkdir -p "$CRON_DIR"
 # Just make sure writable dirs exist.
 mkdir -p /var/log || true
 
-echo "${CRON_SCHEDULE} node /app/main.js >> /proc/1/fd/1 2>&1" > "$CRON_DIR/node"
+#echo "${CRON_SCHEDULE} node /app/main.js >> /proc/1/fd/1 2>&1" > "$CRON_DIR/node"
+echo "${CRON_SCHEDULE} /usr/local/bin/node /app/main.js >> /proc/1/fd/1 2>&1" > "$CRON_DIR/node"
 
 echo "[entrypoint] Installed crontab:"
 cat "$CRON_DIR/node"
