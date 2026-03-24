@@ -10,21 +10,18 @@ echo "[entrypoint] CRON_SCHEDULE=${CRON_SCHEDULE}"
 echo "[entrypoint] R2_BUCKET=${R2_BUCKET}"
 echo "[entrypoint] R2_MAP=${R2_MAP}"
 
-# Write cron job
+# Ensure writable mount is owned by uid 1000 if possible
+chown -R 1000:1000 /app/journal 2>/dev/null || true
+
 cat > /etc/crontabs/root <<EOF
 SHELL=/bin/sh
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 R2_BUCKET=${R2_BUCKET}
 R2_MAP=${R2_MAP}
-${CRON_SCHEDULE} /usr/local/bin/node /app/main.js >> /proc/1/fd/1 2>> /proc/1/fd/2
+${CRON_SCHEDULE} su-exec 1000:1000 /usr/local/bin/node /app/main.js >> /proc/1/fd/1 2>> /proc/1/fd/2
 EOF
 
 echo "[entrypoint] Installed crontab:"
 cat /etc/crontabs/root
 
-# Optional: run once at startup
-#echo "[entrypoint] Running initial execution"
-#node /app/main.js
-
-echo "[entrypoint] Starting cron daemon"
 exec crond -f -l 2
