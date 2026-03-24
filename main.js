@@ -7,6 +7,7 @@ import { Level } from "level"
 import { marked } from "marked"
 
 const pipeline = promisify(stream.pipeline)
+const TMP_ROOT = "/tmp/r2-to-vtt"
 
 // Mapping of R2 object key -> Foundry journal page UUID, from env
 // Example:
@@ -59,7 +60,7 @@ async function downloadObject(key) {
     }),
   )
 
-  const localPath = path.join("/sync", key)
+  const localPath = path.join(TMP_ROOT, key)
   await fs.promises.mkdir(path.dirname(localPath), { recursive: true })
 
   await pipeline(res.Body, fs.createWriteStream(localPath))
@@ -144,11 +145,12 @@ async function main() {
   console.log(`[sync] bucket=${process.env.R2_BUCKET}`)
   console.log("[sync] mappings (R2_MAP):", KEY_TO_UUID)
 
-  // Ensure local root exists
-  await fs.promises.mkdir("/sync", { recursive: true })
+  // Ensure temp download root exists
+  await fs.promises.mkdir(TMP_ROOT, { recursive: true })
 
   const resolvedJournalPath = path.resolve("/app/journal")
   console.log("Journal DB path:", resolvedJournalPath)
+  console.log("Temp download path:", TMP_ROOT)
 
   // --- sanity check: journal dir + CURRENT must exist ---
   if (!fs.existsSync(resolvedJournalPath)) {
